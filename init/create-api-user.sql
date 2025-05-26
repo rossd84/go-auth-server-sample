@@ -1,13 +1,13 @@
 DO
-\$\$
+$$
 BEGIN
    IF NOT EXISTS (
       SELECT FROM pg_catalog.pg_roles
       WHERE rolname = 'api_user') THEN
-      CREATE ROLE api_user LOGIN PASSWORD '${API_PASSWORD}';
+      CREATE ROLE api_user LOGIN PASSWORD '2erVifj6b7GSyc+f';
    END IF;
 END
-\$\$;
+$$;
 
 GRANT CONNECT ON DATABASE saas_api_dev TO api_user;
 GRANT USAGE ON SCHEMA public TO api_user;
