@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: saas_postgres_dev
+    restart: unless-stopped
+    env_file:
+      - .env.db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:
