@@ -2,6 +2,7 @@ package config
 
 import (
     "fmt"
+    "log"
     "os"
 
     "github.com/joho/godotenv"
@@ -17,7 +18,26 @@ type DBConfig struct {
 }
 
 func LoadDBConfig() DBConfig {
-    _ = godotenv.Load(".env")
+    // Load .env.api first, fall back to .env
+    if err := godotenv.Load(".env.api"); err != nil {
+        log.Println("⚠️  .env.api not found, falling back to .env")
+        _ = godotenv.Load(".env")
+    }
+
+	required := []string{
+		"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME",
+	}
+
+	for _, key := range required {
+		if os.Getenv(key) == "" {
+			log.Fatalf("❌ Missing required environment variable: %s", key)
+		}
+	}
+
+    sslMode := os.Getenv("SSL_MODE")
+    if sslMode == "" {
+        sslMode = "disable"
+    }
 
     return DBConfig{
         Host:     os.Getenv("DB_HOST"),
@@ -25,7 +45,7 @@ func LoadDBConfig() DBConfig {
         User:     os.Getenv("DB_USER"),
         Password: os.Getenv("DB_PASSWORD"),
         Name:     os.Getenv("DB_NAME"),
-        SSLMode:  os.Getenv("SSL_MODE"),
+        SSLMode:  sslMode,
     }
 }
 
