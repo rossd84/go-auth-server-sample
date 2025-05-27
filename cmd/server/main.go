@@ -24,8 +24,7 @@ func main() {
 	defer logger.Sync()
 
     // Load DB config and connect
-    dbConfig := config.LoadDBConfig()
-    conn, err := db.Connect(dbConfig)
+    conn, err := db.Connect(appConfig.DB)
     if err != nil {
         logger.Log.Fatalw("Failed to connect to DB", "error", err)
     }
