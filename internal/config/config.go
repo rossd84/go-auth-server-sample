@@ -3,7 +3,7 @@ package config
 import (
     "fmt"
     "log"
-    "os"
+	"os"
 
     "github.com/joho/godotenv"
 )
@@ -17,22 +17,40 @@ type DBConfig struct {
     SSLMode  string
 }
 
-func LoadDBConfig() DBConfig {
-    // Load .env.api first, fall back to .env
-    if err := godotenv.Load(".env.api"); err != nil {
-        log.Println("⚠️  .env.api not found, falling back to .env")
-        _ = godotenv.Load(".env")
+type AppConfig struct {
+    Env        string
+    LogLevel   string
+    LogFile    string
+	Port string
+	Version string
+    DB         DBConfig
+}
+
+func LoadEnv() {
+    env := os.Getenv("ENV")
+    if env == "" {
+        env = "development"
+        log.Println("⚠️  ENV not set, defaulting to development")
     }
 
-	required := []string{
-		"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME",
-	}
+    filename := fmt.Sprintf(".env.%s", env)
+    if err := godotenv.Load(filename); err != nil {
+        log.Printf("⚠️  Failed to load %s, falling back to system env", filename)
+    } else {
+        log.Printf("✅ Loaded environment config from %s", filename)
+    }
+}
 
-	for _, key := range required {
-		if os.Getenv(key) == "" {
-			log.Fatalf("❌ Missing required environment variable: %s", key)
-		}
-	}
+func LoadDBConfig() DBConfig {
+    required := []string{
+        "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME",
+    }
+
+    for _, key := range required {
+        if os.Getenv(key) == "" {
+            log.Fatalf("❌ Missing required environment variable: %s", key)
+        }
+    }
 
     sslMode := os.Getenv("SSL_MODE")
     if sslMode == "" {
@@ -46,6 +64,18 @@ func LoadDBConfig() DBConfig {
         Password: os.Getenv("DB_PASSWORD"),
         Name:     os.Getenv("DB_NAME"),
         SSLMode:  sslMode,
+    }
+}
+
+func LoadAppConfig() AppConfig {
+    LoadEnv()
+    return AppConfig{
+        Env:      os.Getenv("ENV"),
+		Port: os.Getenv("PORT"),
+        LogLevel: os.Getenv("LOG_LEVEL"),
+        LogFile:  os.Getenv("LOG_FILE_PATH"),
+		Version: os.Getenv("VERSION"),
+        DB:       LoadDBConfig(),
     }
 }
 
