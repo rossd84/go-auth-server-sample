@@ -12,7 +12,6 @@ import (
 
 	"saas-go-postgres/internal/router"
 	"saas-go-postgres/internal/config"
-	"saas-go-postgres/internal/user"
 	"saas-go-postgres/internal/logger"
 	"saas-go-postgres/pkg/db"
 )
@@ -24,12 +23,11 @@ func main() {
 	defer logger.Sync()
 
     // Load DB config and connect
-    conn, err := db.Connect(appConfig.DB)
+	conn, err := db.Connect(appConfig.DB)
     if err != nil {
         logger.Log.Fatalw("Failed to connect to DB", "error", err)
     }
     defer conn.Close()
-    user.DB = conn
 
     // Setup router
     port := ":" + appConfig.Port

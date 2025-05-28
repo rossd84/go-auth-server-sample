@@ -2,13 +2,14 @@ package health
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
     "time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Handler struct {
-    DB *sql.DB
+    DB *sqlx.DB
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
