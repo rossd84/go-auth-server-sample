@@ -9,7 +9,7 @@ import (
 
 	"saas-go-postgres/internal/errors"
 	"saas-go-postgres/internal/logger"
-	"saas-go-postgres/internal/auth"
+	"saas-go-postgres/internal/crypto"
 	"saas-go-postgres/internal/audit"
 )
 
@@ -42,7 +42,7 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	}
 
 	// hash password
-	hashed, err := auth.HashPassword(*u.Password)
+	hashed, err := crypto.HashPassword(*u.Password)
 	if err != nil {
 		logger.Log.Errorw("failed to hash password", "email", u.Email, "error", err)
 		return fmt.Errorf("hash password: %w", err)
