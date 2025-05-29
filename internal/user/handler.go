@@ -12,7 +12,9 @@ type Handler struct {
 }
 
 func NewHandler(db *sqlx.DB) *Handler {
-	return &Handler{Service: NewService(db)}
+	repo := NewRepository(db)
+	service := NewService(repo)
+	return &Handler{Service: service}
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {

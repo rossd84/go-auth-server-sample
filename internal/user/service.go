@@ -2,19 +2,19 @@ package user
 
 import (
 	"context"
-	"database/sql"
+	// "database/sql"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
+	// "github.com/jmoiron/sqlx"
 )
 
 type Service struct {
-	DB *sqlx.DB
+	repo *Repository
 }
 
-func NewService(db *sqlx.DB) *Service {
-	return &Service{DB: db}
+func NewService(repo *Repository) *Service {
+	return &Service{repo: repo}
 }
 
 func (s *Service) CreateUser(ctx context.Context, u *User) error {
@@ -22,28 +22,14 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	u.CreatedAt = time.Now()
 	u.UpdatedAt = time.Now()
 
-	_, err := s.DB.NamedExecContext(ctx, `
-		INSERT INTO users (
-			id, email, password, full_name, avatar_url, provider, provider_id,
-			email_verified, verification_token, role, is_active,
-			stripe_customer_id, subscription_status, subscription_ends_at,
-			created_at, updated_at
-		)
-		VALUES (
-			:id, :email, :password, :full_name, :avatar_url, :provider, :provider_id,
-			:email_verified, :verification_token, :role, :is_active,
-			:stripe_customer_id, :subscription_status, :subscription_ends_at,
-			:created_at, :updated_at
-		)
-	`, u)
-	return err
+	return s.repo.InsertUser(ctx, u)
 }
 
-func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	var user User
-	err := s.DB.GetContext(ctx, &user, `SELECT * FROM users WHERE email = $1`, email)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	return &user, err
-}
+// func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+// 	var user User
+// 	err := s.DB.GetContext(ctx, &user, `SELECT * FROM users WHERE email = $1`, email)
+// 	if err == sql.ErrNoRows {
+// 		return nil, nil
+// 	}
+// 	return &user, err
+// }
