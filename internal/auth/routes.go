@@ -5,8 +5,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RegisterRoutes(r *mux.Router, db *sqlx.DB) {
-	h :=NewHandler(db)
+func RegisterRoutes(r *mux.Router, db *sqlx.DB, jwtSecret string) {
+	h := NewHandler(db, jwtSecret)
 
 	r.HandleFunc("/register", h.Register).Methods("POST")
 }

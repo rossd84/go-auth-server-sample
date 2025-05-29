@@ -12,10 +12,10 @@ type Handler struct {
 	AuthService *Service
 }
 
-func NewHandler(db *sqlx.DB) *Handler {
+func NewHandler(db *sqlx.DB, jwtSecret string) *Handler {
 	repo := user.NewRepository(db)
 	userService := user.NewService(repo)
-	authService := NewService(userService)
+	authService := NewService(userService, jwtSecret)
 
 	return &Handler{AuthService: authService}
 }

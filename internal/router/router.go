@@ -8,11 +8,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewRouter(db *sqlx.DB) *mux.Router {
+func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
     r := mux.NewRouter()
 
 	authSubrouter := r.PathPrefix("/api/auth").Subrouter()
-	auth.RegisterRoutes(authSubrouter, db)
+	auth.RegisterRoutes(authSubrouter, db, jwtSecret)
 
 	userSubrouter := r.PathPrefix("/api/users").Subrouter()
     user.RegisterRoutes(userSubrouter, db)

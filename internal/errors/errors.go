@@ -33,3 +33,7 @@ var (
 	ErrPlanNotFound       = errors.New("subscription plan not found")
 )
 
+// --- Other Errors ---
+var (
+	ErrMissingJWTSecret = errors.New("JWT_SECRET is not set")
+)

@@ -24,6 +24,7 @@ type AppConfig struct {
     LogFile  string
     Port     string
     Version  string
+	JWTSecret string `mapstructure:"jwt_secret"`
     DB       DBConfig
 }
 

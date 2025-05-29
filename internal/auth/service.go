@@ -11,10 +11,14 @@ import (
 
 type Service struct {
 	UserService *user.Service
+	JWTSecret string
 }
 
-func NewService(us *user.Service) *Service {
-	return &Service{UserService: us}
+func NewService(us *user.Service, jwtSecret string) *Service {
+	return &Service{
+		UserService: us,
+		JWTSecret: jwtSecret,
+	}
 }
 
 func (s *Service) Register(ctx context.Context, input RegisterInput) (*user.User, error) {
