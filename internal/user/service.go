@@ -10,6 +10,7 @@ import (
 	"saas-go-postgres/internal/errors"
 	"saas-go-postgres/internal/logger"
 	"saas-go-postgres/internal/auth"
+	"saas-go-postgres/internal/audit"
 )
 
 type Service struct {
@@ -53,14 +54,13 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	u.UpdatedAt = u.CreatedAt
 	u.Role = "user"
 	u.IsActive = true
-	u.Provider = "local"
 
 	if err := s.repo.InsertUser(ctx, u); err != nil {
 		logger.Log.Errorw("failed to insert user", "email", u.Email, "error", err)
 		return fmt.Errorf("insert user: %w", err)
 	}
 
-	logger.Log.Infow("user created", "user_id", u.ID, "email", u.Email, "provider", u.Provider, "created_at", u.CreatedAt)
+	audit.Log(ctx, audit.ActionUserCreated, u.ID.String(), map[string]any{"email": u.Email, "provider": u.Provider})
 
 	// sanitize response
 	u.Password = nil
