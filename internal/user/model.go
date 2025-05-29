@@ -9,7 +9,7 @@ import (
 type User struct {
     ID                  uuid.UUID  `db:"id" json:"id"`
     Email               string     `db:"email" json:"email"`
-    Password            *string    `db:"password,omitempty" json:"password,omitempty"` // pointer for nullable
+    Password            *string    `db:"password,omitempty" json:"password,omitempty"`
     FullName            *string    `db:"full_name" json:"full_name,omitempty"`
     AvatarURL           *string    `db:"avatar_url" json:"avatar_url,omitempty"`
 

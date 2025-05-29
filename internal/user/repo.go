@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -32,4 +33,16 @@ func (r *Repository) InsertUser(ctx context.Context, u *User) error {
 	`, u)
 
 	return err
+}
+
+func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	var user User
+	err := r.DB.GetContext(ctx, &user, `SELECT * FROM users WHERE email = $1`, email)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &user, err
 }

@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
+
+	"saas-go-postgres/internal/errors"
 )
 
 type Handler struct {
@@ -25,8 +27,14 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.Service.CreateUser(r.Context(), &u); err != nil {
-		http.Error(w, "failed to create user", http.StatusInternalServerError)
-		return
+		switch err {
+		case errors.ErrMissingEmail, errors.ErrWeakPassword, errors.ErrEmailAlreadyExists:
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		
+		default:
+			http.Error(w, "server error", http.StatusInternalServerError )
+		}
+	return
 	}
 
 	w.WriteHeader(http.StatusCreated)
