@@ -70,4 +70,6 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	return nil
 }
 
-
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	return s.repo.GetUserByEmail(ctx, email)
+}
