@@ -74,7 +74,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResponse, 
 	// add jwt
 	token, err := GenerateJWT(user.ID.String(), user.Role, s.JWTSecret)
 	if err != nil {
-		logger.Log.Errorw("failed to generate jwt", "user_id", user.ID)
+		logger.Log.Errorw("failed to generate jwt", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
 	}
 

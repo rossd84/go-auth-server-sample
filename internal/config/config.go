@@ -76,6 +76,7 @@ func LoadAppConfig() AppConfig {
         LogFile:  viper.GetString("LOG_FILE_PATH"),
         Port:     viper.GetString("PORT"),
         Version:  viper.GetString("VERSION"),
+		JWTSecret: viper.GetString("JWT_SECRET"),
         DB: DBConfig{
             Host:     viper.GetString("DB_HOST"),
             Port:     viper.GetString("DB_PORT"),
