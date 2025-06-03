@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"saas-go-postgres/internal/errors"
 	"saas-go-postgres/internal/logger"
 )
 

@@ -18,11 +18,11 @@ func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
 	api := r.PathPrefix("/api/v1").Subrouter()
 
 	// Auth routes
-	authSubrouter := api.PathPrefix("/api/auth").Subrouter()
+	authSubrouter := api.PathPrefix("/auth").Subrouter()
 	auth.RegisterRoutes(authSubrouter, db, jwtSecret)
 
 	// Protected routes
-	userSubrouter := api.PathPrefix("/api/users").Subrouter()
+	userSubrouter := api.PathPrefix("/users").Subrouter()
 	userSubrouter.Use(auth.AuthMiddleware(jwtSecret))
     user.RegisterRoutes(userSubrouter, db)
 
