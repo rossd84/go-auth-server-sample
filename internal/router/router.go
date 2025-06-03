@@ -3,13 +3,20 @@ package router
 import (
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
+
+	"saas-go-postgres/internal/config"
 	"saas-go-postgres/internal/auth"
 	"saas-go-postgres/internal/health"
 	"saas-go-postgres/internal/user"
+	"saas-go-postgres/internal/middleware"
 )
 
-func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
+func NewRouter(db *sqlx.DB, cfg config.AppConfig) *mux.Router {
 	r := mux.NewRouter()
+	
+	if cfg.IsDev() {
+		r.Use(middleware.LoggingMiddleware)
+	}
 
 	// Public routes
 	r.Handle("/healthz", &health.Handler{DB: db}).Methods("GET")
@@ -19,11 +26,11 @@ func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
 
 	// Auth routes
 	authSubrouter := api.PathPrefix("/auth").Subrouter()
-	auth.RegisterRoutes(authSubrouter, db, jwtSecret)
+	auth.RegisterRoutes(authSubrouter, db, cfg.JWTSecret)
 
 	// Protected routes
 	userSubrouter := api.PathPrefix("/users").Subrouter()
-	userSubrouter.Use(auth.AuthMiddleware(jwtSecret))
+	userSubrouter.Use(auth.AuthMiddleware(cfg.JWTSecret))
 	user.RegisterRoutes(userSubrouter, db)
 
 	return r

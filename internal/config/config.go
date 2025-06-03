@@ -101,3 +101,7 @@ func (c DBConfig) DSN() string {
 		c.Host, c.Port, c.User, c.Password, c.Name, c.SSLMode,
 	)
 }
+
+func (c AppConfig) IsDev() bool {
+	return c.Env == "development"
+}

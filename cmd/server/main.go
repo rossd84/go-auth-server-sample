@@ -31,7 +31,7 @@ func main() {
 
 	// Setup router
 	port := ":" + appConfig.Port
-	r := router.NewRouter(conn, appConfig.JWTSecret)
+	r := router.NewRouter(conn, appConfig)
 
 	// Start HTTP server with graceful shutdown
 	srv := &http.Server{
