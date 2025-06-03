@@ -11,13 +11,20 @@ import (
 func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
     r := mux.NewRouter()
 
-	authSubrouter := r.PathPrefix("/api/auth").Subrouter()
+	// Public routes
+    r.Handle("/healthz", &health.Handler{DB: db}).Methods("GET")
+
+	// API base
+	api := r.PathPrefix("/api/v1").Subrouter()
+
+	// Auth routes
+	authSubrouter := api.PathPrefix("/api/auth").Subrouter()
 	auth.RegisterRoutes(authSubrouter, db, jwtSecret)
 
-	userSubrouter := r.PathPrefix("/api/users").Subrouter()
+	// Protected routes
+	userSubrouter := api.PathPrefix("/api/users").Subrouter()
+	userSubrouter.Use(auth.AuthMiddleware(jwtSecret))
     user.RegisterRoutes(userSubrouter, db)
-
-    r.Handle("/healthz", &health.Handler{DB: db}).Methods("GET")
 
     return r
 }
