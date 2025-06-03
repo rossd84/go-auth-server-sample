@@ -6,7 +6,7 @@ import (
 )
 
 func RegisterRoutes(r *mux.Router, db *sqlx.DB) {
-	h :=NewHandler(db)
+	h := NewHandler(db)
 
 	r.HandleFunc("", h.CreateUser).Methods("POST")
 }

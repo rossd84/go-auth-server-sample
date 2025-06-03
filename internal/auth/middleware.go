@@ -15,7 +15,7 @@ const userContextKey = contextKey("user")
 
 type UserClaims struct {
 	UserID string
-	Role string
+	Role   string
 }
 
 func AuthMiddleware(secret string) func(http.Handler) http.Handler {
@@ -42,7 +42,7 @@ func AuthMiddleware(secret string) func(http.Handler) http.Handler {
 
 			ctx := context.WithValue(r.Context(), userContextKey, &UserClaims{
 				UserID: claims.UserID,
-				Role: claims.Role,
+				Role:   claims.Role,
 			})
 
 			next.ServeHTTP(w, r.WithContext(ctx))

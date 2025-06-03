@@ -2,15 +2,15 @@ package user
 
 import (
 	"context"
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 
+	"saas-go-postgres/internal/audit"
+	"saas-go-postgres/internal/crypto"
 	"saas-go-postgres/internal/errors"
 	"saas-go-postgres/internal/logger"
-	"saas-go-postgres/internal/crypto"
-	"saas-go-postgres/internal/audit"
 )
 
 type Service struct {

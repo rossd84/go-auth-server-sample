@@ -2,13 +2,13 @@ package auth
 
 import (
 	"encoding/json"
-	"net/http"
 	stdErrors "errors"
+	"net/http"
 
 	"github.com/jmoiron/sqlx"
-	"saas-go-postgres/internal/user"
-	"saas-go-postgres/internal/logger"
 	"saas-go-postgres/internal/errors"
+	"saas-go-postgres/internal/logger"
+	"saas-go-postgres/internal/user"
 )
 
 type Handler struct {
@@ -36,7 +36,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u.Password = nil 
+	u.Password = nil
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(u)
 }

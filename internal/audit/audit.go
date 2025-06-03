@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	ActionUserCreated = "user_created"
-	ActionUserLoggedIn = "user_logged_in"
-	ActionUserDeactivated = "user_deactivated"
-	ActionPasswordReset = "password_reset"
+	ActionUserCreated      = "user_created"
+	ActionUserLoggedIn     = "user_logged_in"
+	ActionUserDeactivated  = "user_deactivated"
+	ActionPasswordReset    = "password_reset"
 	ActionSubscriptionPaid = "subscription_paid"
 )
 

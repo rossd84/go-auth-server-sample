@@ -4,21 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"saas-go-postgres/internal/user"
+	"saas-go-postgres/internal/crypto"
 	"saas-go-postgres/internal/errors"
 	"saas-go-postgres/internal/logger"
-	"saas-go-postgres/internal/crypto"
+	"saas-go-postgres/internal/user"
 )
 
 type Service struct {
 	UserService *user.Service
-	JWTSecret string
+	JWTSecret   string
 }
 
 func NewService(us *user.Service, jwtSecret string) *Service {
 	return &Service{
 		UserService: us,
-		JWTSecret: jwtSecret,
+		JWTSecret:   jwtSecret,
 	}
 }
 
@@ -31,7 +31,7 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*user.User
 	}
 
 	u := &user.User{
-		Email: input.Email,
+		Email:    input.Email,
 		Password: &input.Password,
 		FullName: input.FullName,
 	}

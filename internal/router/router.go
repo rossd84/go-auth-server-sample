@@ -1,18 +1,18 @@
 package router
 
 import (
-    "github.com/gorilla/mux"
-    "saas-go-postgres/internal/health"
-    "saas-go-postgres/internal/user"
-	"saas-go-postgres/internal/auth"
+	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
+	"saas-go-postgres/internal/auth"
+	"saas-go-postgres/internal/health"
+	"saas-go-postgres/internal/user"
 )
 
 func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
-    r := mux.NewRouter()
+	r := mux.NewRouter()
 
 	// Public routes
-    r.Handle("/healthz", &health.Handler{DB: db}).Methods("GET")
+	r.Handle("/healthz", &health.Handler{DB: db}).Methods("GET")
 
 	// API base
 	api := r.PathPrefix("/api/v1").Subrouter()
@@ -24,9 +24,7 @@ func NewRouter(db *sqlx.DB, jwtSecret string) *mux.Router {
 	// Protected routes
 	userSubrouter := api.PathPrefix("/users").Subrouter()
 	userSubrouter.Use(auth.AuthMiddleware(jwtSecret))
-    user.RegisterRoutes(userSubrouter, db)
+	user.RegisterRoutes(userSubrouter, db)
 
-    return r
+	return r
 }
-
-

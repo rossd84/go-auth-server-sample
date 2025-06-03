@@ -30,11 +30,11 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		switch err {
 		case errors.ErrMissingEmail, errors.ErrWeakPassword, errors.ErrEmailAlreadyExists:
 			http.Error(w, err.Error(), http.StatusBadRequest)
-		
+
 		default:
-			http.Error(w, "server error", http.StatusInternalServerError )
+			http.Error(w, "server error", http.StatusInternalServerError)
 		}
-	return
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
