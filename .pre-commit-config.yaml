@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+      - id: go-imports
+      - id: go-vet
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.59.1 # use the desired golangci-lint version
+    hooks:
+      - id: golangci-lint
