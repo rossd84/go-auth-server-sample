@@ -2,11 +2,11 @@ package auth
 
 import (
 	"context"
+	"go-server/internal/infrastructure/logger"
 	"net/http"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"saas-go-postgres/internal/logger"
 )
 
 type contextKey string
@@ -29,7 +29,7 @@ func AuthMiddleware(secret string) func(http.Handler) http.Handler {
 
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-			claims := &Claims{}
+			claims := &CustomClaims{}
 			token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 				return []byte(secret), nil
 			})

@@ -35,10 +35,18 @@ func BindFlags() {
 	pflag.String("log_file_path", "", "Path to log file")
 	pflag.Parse()
 
-	viper.BindPFlag("ENV", pflag.Lookup("env"))
-	viper.BindPFlag("PORT", pflag.Lookup("port"))
-	viper.BindPFlag("LOG_LEVEL", pflag.Lookup("log_level"))
-	viper.BindPFlag("LOG_FILE_PATH", pflag.Lookup("log_file_path"))
+	if err := viper.BindPFlag("ENV", pflag.Lookup("env")); err != nil {
+		log.Fatalf("failed to bind ENV flag: %v", err)
+	}
+	if err := viper.BindPFlag("PORT", pflag.Lookup("port")); err != nil {
+		log.Fatalf("failed to bind PORT flag: %v", err)
+	}
+	if err := viper.BindPFlag("LOG_LEVEL", pflag.Lookup("log_level")); err != nil {
+		log.Fatalf("failed to bind LOG_LEVEL flag: %v", err)
+	}
+	if err := viper.BindPFlag("LOG_FILE_PATH", pflag.Lookup("log_file_path")); err != nil {
+		log.Fatalf("failed to bind LOG_FILE_PATH flag: %v", err)
+	}
 }
 
 func LoadAppConfig() AppConfig {

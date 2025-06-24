@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"go-server/internal/infrastructure/config"
+	"go-server/internal/infrastructure/logger"
+	"go-server/internal/interfaces/router"
+	"go-server/pkg/db"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,11 +13,6 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-
-	"saas-go-postgres/internal/config"
-	"saas-go-postgres/internal/logger"
-	"saas-go-postgres/internal/router"
-	"saas-go-postgres/pkg/db"
 )
 
 func main() {

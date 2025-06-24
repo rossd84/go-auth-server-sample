@@ -3,12 +3,12 @@ package auth
 import (
 	"encoding/json"
 	stdErrors "errors"
+	"go-server/internal/domain/user"
+	"go-server/internal/errors"
+	"go-server/internal/infrastructure/logger"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
-	"saas-go-postgres/internal/errors"
-	"saas-go-postgres/internal/logger"
-	"saas-go-postgres/internal/user"
 )
 
 type Handler struct {
@@ -38,7 +38,9 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	u.Password = nil
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(u)
+	if err := json.NewEncoder(w).Encode(u); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +64,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {}

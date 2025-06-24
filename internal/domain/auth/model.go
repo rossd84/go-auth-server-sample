@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"saas-go-postgres/internal/user"
+	"go-server/internal/domain/user"
 )
 
 type RegisterInput struct {

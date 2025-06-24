@@ -1,0 +1,8 @@
+#!/bin/bash
+# A custom hook to run go vet in lueu not being able to go https://github.com/dnephin/pre-commit-golang repo
+# to find files from parent directory.
+
+set -e
+
+echo "Running go vet on all Go files..."
+go vet ./...

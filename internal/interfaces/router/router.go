@@ -4,16 +4,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 
-	"saas-go-postgres/internal/config"
-	"saas-go-postgres/internal/auth"
-	"saas-go-postgres/internal/health"
-	"saas-go-postgres/internal/user"
-	"saas-go-postgres/internal/middleware"
+	"go-server/internal/domain/auth"
+	"go-server/internal/domain/user"
+	"go-server/internal/infrastructure/config"
+	"go-server/internal/infrastructure/middleware"
+	"go-server/internal/interfaces/health"
 )
 
 func NewRouter(db *sqlx.DB, cfg config.AppConfig) *mux.Router {
 	r := mux.NewRouter()
-	
+
 	if cfg.IsDev() {
 		r.Use(middleware.LoggingMiddleware)
 	}

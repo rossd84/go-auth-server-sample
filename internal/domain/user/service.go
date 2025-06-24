@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"saas-go-postgres/internal/audit"
-	"saas-go-postgres/internal/crypto"
-	"saas-go-postgres/internal/errors"
-	"saas-go-postgres/internal/logger"
+	"go-server/internal/domain/audit"
+	"go-server/internal/errors"
+	"go-server/internal/infrastructure/crypto"
+	"go-server/internal/infrastructure/logger"
 )
 
 type Service struct {

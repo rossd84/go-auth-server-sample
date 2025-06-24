@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"saas-go-postgres/internal/crypto"
-	"saas-go-postgres/internal/errors"
-	"saas-go-postgres/internal/logger"
-	"saas-go-postgres/internal/user"
+	"go-server/internal/domain/user"
+	"go-server/internal/errors"
+	"go-server/internal/infrastructure/crypto"
+	"go-server/internal/infrastructure/logger"
 )
 
 type Service struct {

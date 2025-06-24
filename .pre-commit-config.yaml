@@ -1,11 +1,25 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
   - repo: https://github.com/dnephin/pre-commit-golang
     rev: v0.5.1
     hooks:
       - id: go-fmt
       - id: go-imports
-      - id: go-vet
-  - repo: https://github.com/golangci/golangci-lint
-    rev: v1.59.1 # use the desired golangci-lint version
+  - repo: local
     hooks:
+      - id: go-vet
+        name: go vet
+        entry: .hooks/go-vet
+        language: system
+        types: [go]
       - id: golangci-lint
+        name: golangci-lint
+        entry: .hooks/golangci-lint.sh
+        language: system
+        types: [go]

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"saas-go-postgres/internal/logger"
+	"go-server/internal/infrastructure/logger"
 )
 
 const (

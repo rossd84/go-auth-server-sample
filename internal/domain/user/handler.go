@@ -2,11 +2,10 @@ package user
 
 import (
 	"encoding/json"
+	"go-server/internal/errors"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
-
-	"saas-go-postgres/internal/errors"
 )
 
 type Handler struct {
@@ -38,5 +37,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(u)
+	if err := json.NewEncoder(w).Encode(u); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
