@@ -4,7 +4,7 @@ import (
 	"context"
 	stdErrors "errors"
 	"fmt"
-	"go-server/internal/utilities/errors"
+	"go-server/internal/utils/errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

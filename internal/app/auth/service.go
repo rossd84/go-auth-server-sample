@@ -3,10 +3,10 @@ package auth
 import (
 	"context"
 	"fmt"
-	"go-server/internal/modules/user"
-	"go-server/internal/utilities/crypto"
-	"go-server/internal/utilities/errors"
-	"go-server/internal/utilities/logger"
+	"go-server/internal/app/user"
+	"go-server/internal/utils/crypto"
+	"go-server/internal/utils/errors"
+	"go-server/internal/utils/logger"
 )
 
 type Service struct {

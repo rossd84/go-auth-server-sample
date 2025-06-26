@@ -47,9 +47,9 @@ echo "✅ docker-compose.yml created."
 # Create init SQL directory and file
 echo "📁 Creating init SQL script..."
 mkdir -p init
-source .env.db
+source ../environments/.env.db
 
-cat <<EOF >init/create-api-user.sql
+cat <<EOF >./postgres/create-api-user.sql
 DO
 \$\$
 BEGIN
@@ -66,7 +66,7 @@ GRANT USAGE ON SCHEMA public TO ${API_USER};
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${API_USER};
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${API_USER};
 EOF
-echo "✅ init/create-api-user.sql created."
+echo "✅ sql/create-api-user.sql created."
 
 # Final prompt and optional DB reset
 echo ""
@@ -77,9 +77,9 @@ if [[ "$RESET" =~ ^[Yy]$ ]]; then
     echo "🧹 Cleaning up existing container and volume..."
     docker compose down -v
     echo "🚀 Starting fresh container with updated credentials..."
-    docker compose --env-file .env.db up -d
+    docker compose --env-file ../environments/.env.db up -d
     echo "✅ Database reset and container restarted."
 else
     echo "ℹ️  You can start the container manually with:"
-    echo "    docker compose --env-file .env.db up -d"
+    echo "    docker compose --env-file ./environments/.env.db up -d"
 fi

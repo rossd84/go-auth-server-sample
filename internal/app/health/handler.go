@@ -2,7 +2,7 @@ package health
 
 import (
 	"context"
-	"go-server/internal/utilities/logger"
+	"go-server/internal/utils/logger"
 	"net/http"
 	"time"
 

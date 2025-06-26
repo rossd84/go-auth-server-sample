@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	"fmt"
-	"go-server/internal/modules/audit"
-	"go-server/internal/utilities/crypto"
-	"go-server/internal/utilities/errors"
-	"go-server/internal/utilities/logger"
+	"go-server/internal/app/audit"
+	"go-server/internal/utils/crypto"
+	"go-server/internal/utils/errors"
+	"go-server/internal/utils/logger"
 	"time"
 
 	"github.com/google/uuid"

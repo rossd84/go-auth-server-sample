@@ -1,11 +1,11 @@
 package router
 
 import (
+	"go-server/internal/app/auth"
+	"go-server/internal/app/health"
+	"go-server/internal/app/user"
 	"go-server/internal/config"
 	"go-server/internal/middleware"
-	"go-server/internal/modules/auth"
-	"go-server/internal/modules/health"
-	"go-server/internal/modules/user"
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"

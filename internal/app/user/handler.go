@@ -2,7 +2,7 @@ package user
 
 import (
 	"encoding/json"
-	"go-server/internal/utilities/errors"
+	"go-server/internal/utils/errors"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"

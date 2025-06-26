@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"go-server/internal/app/auth"
+	"go-server/internal/app/user"
 	"go-server/internal/config"
-	"go-server/internal/modules/auth"
-	"go-server/internal/modules/user"
 	"go-server/internal/router"
-	"go-server/internal/utilities/logger"
+	"go-server/internal/utils/logger"
 	"go-server/pkg/db"
 	"net/http"
 	"os"

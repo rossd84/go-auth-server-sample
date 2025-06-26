@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	stdErrors "errors"
-	"go-server/internal/modules/user"
-	"go-server/internal/utilities/errors"
+	"go-server/internal/app/user"
+	"go-server/internal/utils/errors"
 	"net/http"
 	"strings"
 	"time"

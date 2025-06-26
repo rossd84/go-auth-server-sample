@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"go-server/internal/modules/user"
+	"go-server/internal/app/user"
 	"time"
 )
 
