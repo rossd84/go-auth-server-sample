@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	stdErrors "errors"
 	"go-server/internal/app/user"
+	"go-server/internal/utils"
 	"go-server/internal/utils/errors"
-	"go-server/internal/utils/logger"
 	"net"
 	"net/http"
 	"strings"
@@ -77,7 +77,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			stdErrors.Is(err, errors.ErrUnauthorized):
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 		default:
-			logger.Log.Errorw("login failed", "error", err)
+			utils.Log.Errorw("login failed", "error", err)
 			http.Error(w, "failed to log in", http.StatusInternalServerError)
 		}
 		return

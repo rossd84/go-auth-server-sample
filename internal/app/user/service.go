@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"go-server/internal/app/audit"
-	"go-server/internal/utils/crypto"
+	"go-server/internal/utils"
 	"go-server/internal/utils/errors"
-	"go-server/internal/utils/logger"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,7 +32,7 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	// check existing user
 	existing, err := s.repo.GetUserByEmail(ctx, u.Email)
 	if err != nil {
-		logger.Log.Errorw("failed to check existing user", "email", u.Email, "error", err)
+		utils.Log.Errorw("failed to check existing user", "email", u.Email, "error", err)
 		return fmt.Errorf("check user existence: %w", err)
 	}
 	if existing != nil {
@@ -41,9 +40,9 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	}
 
 	// hash password
-	hashed, err := crypto.HashPhrase(*u.Password)
+	hashed, err := utils.HashPassword(*u.Password)
 	if err != nil {
-		logger.Log.Errorw("failed to hash password", "email", u.Email, "error", err)
+		utils.Log.Errorw("failed to hash password", "email", u.Email, "error", err)
 		return fmt.Errorf("hash password: %w", err)
 	}
 	u.Password = &hashed
@@ -55,7 +54,7 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	u.IsActive = true
 
 	if err := s.repo.InsertUser(ctx, u); err != nil {
-		logger.Log.Errorw("failed to insert user", "email", u.Email, "error", err)
+		utils.Log.Errorw("failed to insert user", "email", u.Email, "error", err)
 		return fmt.Errorf("insert user: %w", err)
 	}
 

@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"go-server/internal/app/user"
-	"go-server/internal/utils/crypto"
+	"go-server/internal/utils"
 	"go-server/internal/utils/errors"
-	"go-server/internal/utils/logger"
 
 	"github.com/google/uuid"
 )
@@ -45,7 +44,7 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*user.User
 
 	err := s.UserService.CreateUser(ctx, u)
 	if err != nil {
-		logger.Log.Errorw("auth.Register failed", "email", input.Email, "error", err)
+		utils.Log.Errorw("auth.Register failed", "email", input.Email, "error", err)
 		return nil, fmt.Errorf("register user: %w", err)
 	}
 
@@ -60,7 +59,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 	// check database for email
 	user, err := s.UserService.GetUserByEmail(ctx, input.Email)
 	if err != nil {
-		logger.Log.Errorw("failed to check existing user", "email", input.Email, "error", err)
+		utils.Log.Errorw("failed to check existing user", "email", input.Email, "error", err)
 		return nil, fmt.Errorf("check user existence: %w", err)
 	}
 
@@ -69,7 +68,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 	}
 
 	// check password against hashedPassword
-	if !crypto.CheckPhraseHash(input.Password, *user.Password) {
+	if !utils.CheckPasswordHash(input.Password, *user.Password) {
 		return nil, errors.ErrUnauthorized
 	}
 
@@ -81,17 +80,17 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 	// add jwt
 	authToken, err := GenerateAuthToken(user.ID.String(), user.Role, s.JWTSecret)
 	if err != nil {
-		logger.Log.Errorw("failed to generate jwt", "user_id", user.ID, "error", err)
+		utils.Log.Errorw("failed to generate jwt", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
 	}
 	refreshToken, expiration, err := GenerateRefreshToken(user.ID.String(), s.JWTRefresh, s.JWTIssuer)
 	if err != nil {
-		logger.Log.Errorw("failed to generate refresh token", "user_id", user.ID, "error", err)
+		utils.Log.Errorw("failed to generate refresh token", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
 	}
-	refreshTokenHash, err := crypto.HashRefreshToken(refreshToken)
+	refreshTokenHash, err := utils.HashRefreshToken(refreshToken)
 	if err != nil {
-		logger.Log.Errorw("failed to hash token", "user_id", user.ID, "error", err)
+		utils.Log.Errorw("failed to hash token", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
 	}
 
@@ -111,7 +110,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 	}
 
 	if dbError := s.repo.StoreRefreshToken(ctx, rt); dbError != nil {
-		logger.Log.Errorw("failed to store refresh token in database", "user_id", user.ID, "error", err)
+		utils.Log.Errorw("failed to store refresh token in database", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
 	}
 	// refreshToken, err := GenerateAndStoreRefreshToken(user.ID.String(),)

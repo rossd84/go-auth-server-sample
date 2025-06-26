@@ -1,4 +1,4 @@
-package logger
+package utils
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 
 var Log *zap.SugaredLogger
 
-func Init(env string, level string, logFilePath string) {
+func InitLog(env string, level string, logFilePath string) {
 	var cfg zap.Config
 	var err error
 
@@ -55,7 +55,7 @@ func Infow(msg string, keysAndValues ...any) {
 	}
 }
 
-func Sync() {
+func SyncLog() {
 	if Log != nil {
 		_ = Log.Sync()
 	}

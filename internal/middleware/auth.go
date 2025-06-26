@@ -1,11 +1,11 @@
-package auth
+package middleware
 
 import (
 	"context"
 	stdErrors "errors"
+	"go-server/internal/app/auth"
 	"go-server/internal/app/user"
 	"go-server/internal/utils"
-	"go-server/internal/utils/crypto"
 	"go-server/internal/utils/errors"
 	"net/http"
 	"strings"
@@ -21,7 +21,7 @@ type UserClaims struct {
 	Role   string
 }
 
-func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo *user.UserRepository, authRepo *AuthRepository) func(http.Handler) http.Handler {
+func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo *user.UserRepository, authRepo *auth.AuthRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -31,7 +31,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 			}
 
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-			authClaims, authErr := CheckAuthToken(tokenString, secret)
+			authClaims, authErr := auth.CheckAuthToken(tokenString, secret)
 
 			var userID, role string
 
@@ -44,7 +44,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 						return
 					}
 
-					refreshClaims, refreshErr := CheckRefreshToken(cookie.Value, refreshSecret)
+					refreshClaims, refreshErr := auth.CheckRefreshToken(cookie.Value, refreshSecret)
 					if refreshErr != nil {
 						http.Error(w, "invalid or expired refresh token", http.StatusUnauthorized)
 						return
@@ -63,13 +63,13 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 					}
 
 					// Generate new refresh token
-					newToken, newExp, genErr := GenerateRefreshToken(newUser.ID.String(), refreshSecret, issuer)
+					newToken, newExp, genErr := auth.GenerateRefreshToken(newUser.ID.String(), refreshSecret, issuer)
 					if genErr != nil {
 						http.Error(w, "failed to generate new refresh token", http.StatusInternalServerError)
 						return
 					}
 
-					newTokenHash, err := crypto.HashPhrase(newToken)
+					newTokenHash, err := utils.HashRefreshToken(newToken)
 					if err != nil {
 						http.Error(w, "failed to generate hash", http.StatusInternalServerError)
 						return
@@ -79,7 +79,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 					meta := utils.ExtractMetadata(r)
 
 					// Store the new refresh token
-					newRefreshToken := RefreshToken{
+					newRefreshToken := auth.RefreshToken{
 						UserID:    newUser.ID,
 						TokenHash: newTokenHash,
 						UserAgent: meta.UserAgent,
@@ -97,7 +97,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 					}
 
 					// Generate new auth token
-					newAuthToken, _ := GenerateAuthToken(newUser.ID.String(), newUser.Role, secret)
+					newAuthToken, _ := auth.GenerateAuthToken(newUser.ID.String(), newUser.Role, secret)
 
 					http.SetCookie(w, &http.Cookie{
 						Name:     "refresh_token",
@@ -131,78 +131,6 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 	}
 }
 
-//	func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo *user.UserRepository, authRepo *AuthRepository) func(http.Handler) http.Handler {
-//		return func(next http.Handler) http.Handler {
-//			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//				authHeader := r.Header.Get("Authorization")
-//				if !strings.HasPrefix(authHeader, "Bearer ") {
-//					http.Error(w, "missing or invalid Authorization header", http.StatusUnauthorized)
-//					return
-//				}
-//
-//				tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-//				authClaims, authErr := CheckAuthToken(tokenString, secret)
-//
-//				var userID, role string
-//
-//				if authErr != nil {
-//					if stdErrors.Is(authErr, errors.ErrTokenExpired) {
-//						// Attempt to refresh
-//						cookie, cookieErr := r.Cookie("refresh_token")
-//						if cookieErr != nil {
-//							http.Error(w, "refresh token missing", http.StatusUnauthorized)
-//							return
-//						}
-//
-//						refreshClaims, refreshErr := CheckRefreshToken(cookie.Value, refreshSecret)
-//						if refreshErr != nil {
-//							http.Error(w, "invalid or expired refresh token", http.StatusUnauthorized)
-//							return
-//						}
-//
-//						newUser, err := userRepo.GetUserByID(r.Context(), refreshClaims.UserID)
-//						if err != nil {
-//							http.Error(w, "invalid or expired refresh token", http.StatusUnauthorized)
-//						}
-//
-//						newAuthToken, _ := GenerateAuthToken(newUser.ID.String(), newUser.Role, secret)
-//
-//
-//						newRefreshToken, _, err :=
-//						if err != nil {
-//							http.Error(w, "invalid or expired refresh token", http.StatusUnauthorized)
-//						}
-//
-//						http.SetCookie(w, &http.Cookie{
-//							Name:     "refresh_token",
-//							Value:    newRefreshToken,
-//							Path:     "/",
-//							HttpOnly: true,
-//							Secure:   true,
-//						})
-//						w.Header().Set("Authorization", "Bearer "+newAuthToken)
-//
-//						userID = newUser.ID.String()
-//						role = newUser.Role
-//					} else {
-//
-//						http.Error(w, "invalid auth token", http.StatusUnauthorized)
-//						return
-//					}
-//				}
-//				if authErr == nil {
-//					userID = authClaims.Subject
-//					role = authClaims.Role
-//				}
-//
-//				ctx := context.WithValue(r.Context(), userContextKey, &UserClaims{
-//					UserID: userID,
-//					Role:   role,
-//				})
-//				next.ServeHTTP(w, r.WithContext(ctx))
-//			})
-//		}
-//	}
 func GetUserFromContext(ctx context.Context) (*UserClaims, bool) {
 	user, ok := ctx.Value(userContextKey).(*UserClaims)
 	return user, ok

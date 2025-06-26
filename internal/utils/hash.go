@@ -1,4 +1,4 @@
-package crypto
+package utils
 
 import (
 	"crypto/sha256"
@@ -7,12 +7,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashPhrase(phrase string) (string, error) {
+func HashPassword(phrase string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(phrase), 14)
 	return string(bytes), err
 }
 
-func CheckPhraseHash(phrase, hash string) bool {
+func CheckPasswordHash(phrase, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(phrase))
 	return err == nil
 }

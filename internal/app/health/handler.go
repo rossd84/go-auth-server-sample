@@ -2,7 +2,7 @@ package health
 
 import (
 	"context"
-	"go-server/internal/utils/logger"
+	"go-server/internal/utils"
 	"net/http"
 	"time"
 
@@ -24,6 +24,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write([]byte("OK")); err != nil {
-		logger.Log.Errorw("")
+		utils.Log.Errorw("")
 	}
 }

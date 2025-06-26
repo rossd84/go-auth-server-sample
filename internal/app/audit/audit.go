@@ -2,7 +2,7 @@ package audit
 
 import (
 	"context"
-	"go-server/internal/utils/logger"
+	"go-server/internal/utils"
 	"time"
 )
 
@@ -15,7 +15,7 @@ const (
 )
 
 func Log(ctx context.Context, action string, actorID string, metadata map[string]any) {
-	logger.Log.Infow(
+	utils.Log.Infow(
 		"audit",
 		"timestamp", time.Now().UTC(),
 		"action", action,

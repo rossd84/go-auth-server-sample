@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go-server/internal/utils/logger"
+	"go-server/internal/utils"
 	"net/http"
 	"time"
 )
@@ -15,7 +15,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		logger.Log.Infow("HTTP Request",
+		utils.Log.Infow("HTTP Request",
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", wrapped.statusCode,
