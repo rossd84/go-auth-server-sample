@@ -11,7 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewRouter(db *sqlx.DB, cfg config.AppConfig, userRepo *user.UserRepository) *mux.Router {
+func NewRouter(db *sqlx.DB, cfg config.AppConfig, userRepo *user.UserRepository, authRepo *auth.AuthRepository) *mux.Router {
 	r := mux.NewRouter()
 
 	if cfg.IsDev() {
@@ -30,7 +30,7 @@ func NewRouter(db *sqlx.DB, cfg config.AppConfig, userRepo *user.UserRepository)
 
 	// Protected routes
 	userSubrouter := api.PathPrefix("/users").Subrouter()
-	userSubrouter.Use(auth.AuthMiddleware(cfg.JWTSecret, cfg.JWTRefresh, userRepo))
+	userSubrouter.Use(auth.AuthMiddleware(cfg.JWTSecret, cfg.JWTRefresh, cfg.JWTIssuer, userRepo, authRepo))
 	user.RegisterRoutes(userSubrouter, db)
 
 	return r

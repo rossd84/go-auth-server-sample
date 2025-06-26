@@ -7,6 +7,7 @@ import (
 	"go-server/internal/utilities/errors"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type contextKey string
@@ -18,7 +19,7 @@ type UserClaims struct {
 	Role   string
 }
 
-func AuthMiddleware(secret string, refreshSecret string, userRepo *user.UserRepository) func(http.Handler) http.Handler {
+func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo *user.UserRepository, authRepo *AuthRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -53,7 +54,16 @@ func AuthMiddleware(secret string, refreshSecret string, userRepo *user.UserRepo
 					}
 
 					newAuthToken, _ := GenerateAuthToken(newUser.ID.String(), newUser.Role, secret)
-					newRefreshToken, _, _ := GenerateRefreshToken(newUser.ID.String(), refreshSecret, refreshClaims.Issuer)
+
+					ip := r.RemoteAddr
+					userAgent := r.UserAgent()
+
+					newRefreshToken, _, err := GenerateAndStoreRefreshToken(
+						r.Context(), authRepo, newUser.ID.String(), ip, userAgent, refreshSecret, issuer, time.Hour*24*7,
+					)
+					if err != nil {
+						http.Error(w, "invalid or expired refresh token", http.StatusUnauthorized)
+					}
 
 					http.SetCookie(w, &http.Cookie{
 						Name:     "refresh_token",

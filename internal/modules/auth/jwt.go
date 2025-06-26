@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	stdErrors "errors"
 	"fmt"
 	"go-server/internal/utilities/errors"
@@ -42,13 +43,13 @@ func GenerateAuthToken(userID string, role string, secret string) (string, error
 	return token.SignedString([]byte(secret))
 }
 
-func GenerateRefreshToken(userID string, secret string, issuer string) (string, string, error) {
+func GenerateRefreshToken(userID string, secret string, issuer string) (string, string, time.Time, error) {
 	if secret == "" {
-		return "", "", errors.ErrMissingJWTRefresh
+		return "", "", time.Time{}, errors.ErrMissingJWTRefresh
 	}
 
 	if issuer == "" {
-		return "", "", errors.ErrMissingIssuer
+		return "", "", time.Time{}, errors.ErrMissingIssuer
 	}
 
 	expiration := time.Now().Add(30 * 24 * time.Hour) // 30 Days
@@ -70,10 +71,10 @@ func GenerateRefreshToken(userID string, secret string, issuer string) (string, 
 
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", "", err
+		return "", "", time.Time{}, err
 	}
 
-	return signedToken, jti, nil
+	return signedToken, jti, expiration, nil
 }
 
 func CheckAuthToken(tokenString string, secret string) (*JWTAuthClaims, error) {
@@ -128,4 +129,30 @@ func CheckRefreshToken(tokenString string, secret string) (*JWTRefreshClaims, er
 
 func IsTokenExpired(err error) bool {
 	return stdErrors.Is(err, jwt.ErrTokenExpired)
+}
+
+func GenerateAndStoreRefreshToken(
+	ctx context.Context,
+	repo *AuthRepository,
+	userID, ip, userAgent, secret, issuer string,
+	expiry time.Duration,
+) (string, string, error) {
+	token, jti, expiresAt, err := GenerateRefreshToken(userID, secret, issuer)
+	if err != nil {
+		return "", "", err
+	}
+
+	rt := &RefreshToken{
+		UserID:    userID,
+		Token:     token,
+		IPAddress: ip,
+		UserAgent: userAgent,
+		ExpiresAt: expiresAt,
+	}
+
+	if err := repo.StoreRefreshToken(ctx, rt); err != nil {
+		return "", "", err
+	}
+
+	return token, jti, nil
 }

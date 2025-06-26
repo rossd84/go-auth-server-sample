@@ -26,6 +26,7 @@ type AppConfig struct {
 	Version    string
 	JWTSecret  string `mapstructure:"jwt_secret"`
 	JWTRefresh string `mapstructure:"jwt_refresh"`
+	JWTIssuer  string `mapstructure:"jwt_issuer"`
 	DB         DBConfig
 }
 
@@ -87,6 +88,7 @@ func LoadAppConfig() AppConfig {
 		Version:    viper.GetString("VERSION"),
 		JWTSecret:  viper.GetString("JWT_SECRET"),
 		JWTRefresh: viper.GetString("JWT_REFRESH"),
+		JWTIssuer:  viper.GetString("JWT_ISSUER"),
 		DB: DBConfig{
 			Host:     viper.GetString("DB_HOST"),
 			Port:     viper.GetString("DB_PORT"),

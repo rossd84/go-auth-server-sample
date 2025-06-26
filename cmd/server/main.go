@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"go-server/internal/config"
+	"go-server/internal/modules/auth"
 	"go-server/internal/modules/user"
 	"go-server/internal/router"
 	"go-server/internal/utilities/logger"
@@ -30,10 +31,11 @@ func main() {
 	defer conn.Close()
 
 	userRepo := user.NewUserRepository(conn)
+	authRepo := auth.NewAuthRepository(conn)
 
 	// Setup router
 	port := ":" + appConfig.Port
-	r := router.NewRouter(conn, appConfig, userRepo)
+	r := router.NewRouter(conn, appConfig, userRepo, authRepo)
 
 	// Start HTTP server with graceful shutdown
 	srv := &http.Server{
