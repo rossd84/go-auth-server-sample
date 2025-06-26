@@ -26,9 +26,7 @@ func NewRouter(db *sqlx.DB, cfg config.AppConfig, userRepo *user.UserRepository,
 
 	// Auth routes
 	authSubrouter := api.PathPrefix("/auth").Subrouter()
-	auth.RegisterRoutes(authSubrouter, db, cfg.JWTSecret)
-
-	// Protected routes
+	auth.RegisterRoutes(authSubrouter, db, cfg.JWTSecret, cfg.JWTRefresh, cfg.JWTIssuer, authRepo) // Protected routes
 	userSubrouter := api.PathPrefix("/users").Subrouter()
 	userSubrouter.Use(auth.AuthMiddleware(cfg.JWTSecret, cfg.JWTRefresh, cfg.JWTIssuer, userRepo, authRepo))
 	user.RegisterRoutes(userSubrouter, db)

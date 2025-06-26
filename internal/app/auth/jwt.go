@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"context"
+	// "context"
 	stdErrors "errors"
 	"fmt"
 	"go-server/internal/utils/errors"
@@ -43,23 +43,23 @@ func GenerateAuthToken(userID string, role string, secret string) (string, error
 	return token.SignedString([]byte(secret))
 }
 
-func GenerateRefreshToken(userID string, secret string, issuer string) (string, string, time.Time, error) {
+func GenerateRefreshToken(userID string, secret string, issuer string) (string, time.Time, error) {
 	if secret == "" {
-		return "", "", time.Time{}, errors.ErrMissingJWTRefresh
+		return "", time.Time{}, errors.ErrMissingJWTRefresh
 	}
 
 	if issuer == "" {
-		return "", "", time.Time{}, errors.ErrMissingIssuer
+		return "", time.Time{}, errors.ErrMissingIssuer
 	}
 
 	expiration := time.Now().Add(30 * 24 * time.Hour) // 30 Days
-	jti := uuid.New().String()
+	tokenID := uuid.New()
 
 	claims := JWTRefreshClaims{
-		ID:     jti,
+		ID:     tokenID.String(),
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        jti,
+			ID:        tokenID.String(),
 			ExpiresAt: jwt.NewNumericDate(expiration),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Subject:   userID,
@@ -71,10 +71,10 @@ func GenerateRefreshToken(userID string, secret string, issuer string) (string, 
 
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", "", time.Time{}, err
+		return "", time.Time{}, err
 	}
 
-	return signedToken, jti, expiration, nil
+	return signedToken, expiration, nil
 }
 
 func CheckAuthToken(tokenString string, secret string) (*JWTAuthClaims, error) {
@@ -127,32 +127,32 @@ func CheckRefreshToken(tokenString string, secret string) (*JWTRefreshClaims, er
 	return nil, errors.ErrInvalidRefreshToken
 }
 
-func IsTokenExpired(err error) bool {
-	return stdErrors.Is(err, jwt.ErrTokenExpired)
-}
-
-func GenerateAndStoreRefreshToken(
-	ctx context.Context,
-	repo *AuthRepository,
-	userID, ip, userAgent, secret, issuer string,
-	expiry time.Duration,
-) (string, string, error) {
-	token, jti, expiresAt, err := GenerateRefreshToken(userID, secret, issuer)
-	if err != nil {
-		return "", "", err
-	}
-
-	rt := &RefreshToken{
-		UserID:    userID,
-		Token:     token,
-		IPAddress: ip,
-		UserAgent: userAgent,
-		ExpiresAt: expiresAt,
-	}
-
-	if err := repo.StoreRefreshToken(ctx, rt); err != nil {
-		return "", "", err
-	}
-
-	return token, jti, nil
-}
+// func IsTokenExpired(err error) bool {
+// 	return stdErrors.Is(err, jwt.ErrTokenExpired)
+// }
+//
+// func GenerateAndStoreRefreshToken(
+// 	ctx context.Context,
+// 	repo *AuthRepository,
+// 	userID, ip, userAgent, secret, issuer string,
+// 	expiry time.Duration,
+// ) (string, string, error) {
+// 	token, jti, expiresAt, err := GenerateRefreshToken(userID, secret, issuer)
+// 	if err != nil {
+// 		return "", "", err
+// 	}
+//
+// 	rt := &RefreshToken{
+// 		UserID:    userID,
+// 		Token:     token,
+// 		IPAddress: ip,
+// 		UserAgent: userAgent,
+// 		ExpiresAt: expiresAt,
+// 	}
+//
+// 	if err := repo.StoreRefreshToken(ctx, rt); err != nil {
+// 		return "", "", err
+// 	}
+//
+// 	return token, jti, nil
+// }

@@ -41,7 +41,7 @@ func (s *Service) CreateUser(ctx context.Context, u *User) error {
 	}
 
 	// hash password
-	hashed, err := crypto.HashPassword(*u.Password)
+	hashed, err := crypto.HashPhrase(*u.Password)
 	if err != nil {
 		logger.Log.Errorw("failed to hash password", "email", u.Email, "error", err)
 		return fmt.Errorf("hash password: %w", err)

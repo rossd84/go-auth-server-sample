@@ -3,6 +3,8 @@ package auth
 import (
 	"go-server/internal/app/user"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type RegisterInput struct {
@@ -17,16 +19,23 @@ type LoginInput struct {
 }
 
 type LoginResponse struct {
-	User  *user.User `json:"user"`
-	Token string     `json:"token"`
+	User         *user.User `json:"user"`
+	Token        string     `json:"token"`
+	RefreshToken string     `json:"refresh_token"`
 }
 
 type RefreshToken struct {
-	ID        string    `db:"id"`
-	UserID    string    `db:"user_id"`
-	Token     string    `db:"token"`
-	UserAgent string    `db:"user_agent"`
-	IPAddress string    `db:"ip_address"`
-	ExpiresAt time.Time `db:"expires_at"`
-	CreatedAt time.Time `db:"created_at"`
+	UserID    uuid.UUID  `db:"user_id"`
+	SessionID uuid.UUID  `db:"session_id"`
+	TokenHash string     `db:"token_hash"`
+	UserAgent string     `db:"user_agent"`
+	IPAddress string     `db:"ip_address"`
+	DeviceID  string     `db:"device_id"`
+	Location  string     `db:"location"`
+	Platform  string     `db:"platform"`
+	Browser   string     `db:"browser"`
+	Revoked   bool       `db:"revoked"`
+	RevokedAt *time.Time `db:"revoked_at"`
+	ExpiresAt time.Time  `db:"expires_at"`
+	IssuedAt  time.Time  `db:"issued_at"`
 }
