@@ -6,9 +6,7 @@ import (
 	"go-server/internal/app/user"
 	"go-server/internal/utils"
 	"go-server/internal/utils/errors"
-	"net"
 	"net/http"
-	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -55,7 +53,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Get meta
 	userAgent := r.UserAgent()
-	ip := getIPAddress(r)
+	ip := utils.GetIPAddress(r)
 	deviceID := r.Header.Get("X-Device-ID")
 	platform := r.Header.Get("X-Platform")
 	browser := r.Header.Get("X-Browser")
@@ -101,16 +99,4 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Del("Authorization")
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func getIPAddress(r *http.Request) string {
-	// Check common reverse proxy headers
-	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
-		return strings.Split(ip, ",")[0]
-	}
-	if ip := r.Header.Get("X-Real-IP"); ip != "" {
-		return ip
-	}
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-	return ip
 }
