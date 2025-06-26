@@ -3,21 +3,20 @@ package user
 import (
 	"context"
 	"fmt"
+	"go-server/internal/modules/audit"
+	"go-server/internal/utilities/crypto"
+	"go-server/internal/utilities/errors"
+	"go-server/internal/utilities/logger"
 	"time"
 
 	"github.com/google/uuid"
-
-	"go-server/internal/domain/audit"
-	"go-server/internal/errors"
-	"go-server/internal/infrastructure/crypto"
-	"go-server/internal/infrastructure/logger"
 )
 
 type Service struct {
-	repo *Repository
+	repo *UserRepository
 }
 
-func NewService(repo *Repository) *Service {
+func NewService(repo *UserRepository) *Service {
 	return &Service{repo: repo}
 }
 

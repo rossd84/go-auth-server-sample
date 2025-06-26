@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"go-server/internal/domain/user"
+	"go-server/internal/modules/user"
 )
 
 type RegisterInput struct {

@@ -2,7 +2,7 @@ package user
 
 import (
 	"encoding/json"
-	"go-server/internal/errors"
+	"go-server/internal/utilities/errors"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -13,7 +13,7 @@ type Handler struct {
 }
 
 func NewHandler(db *sqlx.DB) *Handler {
-	repo := NewRepository(db)
+	repo := NewUserRepository(db)
 	service := NewService(repo)
 	return &Handler{Service: service}
 }

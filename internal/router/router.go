@@ -1,17 +1,17 @@
 package router
 
 import (
+	"go-server/internal/config"
+	"go-server/internal/middleware"
+	"go-server/internal/modules/auth"
+	"go-server/internal/modules/health"
+	"go-server/internal/modules/user"
+
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
-
-	"go-server/internal/domain/auth"
-	"go-server/internal/domain/user"
-	"go-server/internal/infrastructure/config"
-	"go-server/internal/infrastructure/middleware"
-	"go-server/internal/interfaces/health"
 )
 
-func NewRouter(db *sqlx.DB, cfg config.AppConfig) *mux.Router {
+func NewRouter(db *sqlx.DB, cfg config.AppConfig, userRepo *user.UserRepository) *mux.Router {
 	r := mux.NewRouter()
 
 	if cfg.IsDev() {
@@ -30,7 +30,7 @@ func NewRouter(db *sqlx.DB, cfg config.AppConfig) *mux.Router {
 
 	// Protected routes
 	userSubrouter := api.PathPrefix("/users").Subrouter()
-	userSubrouter.Use(auth.AuthMiddleware(cfg.JWTSecret))
+	userSubrouter.Use(auth.AuthMiddleware(cfg.JWTSecret, cfg.JWTRefresh, userRepo))
 	user.RegisterRoutes(userSubrouter, db)
 
 	return r

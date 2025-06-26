@@ -35,11 +35,24 @@ func Init(env string, level string, logFilePath string) {
 	}
 
 	Log = zapLogger.Sugar()
+
 	Log.Infow("Logger initialized",
 		"env", env,
 		"level", level,
 		"logFilePath", logFilePath,
 	)
+}
+
+func Errorw(msg string, keysAndValues ...any) {
+	if Log != nil {
+		Log.Errorw(msg, keysAndValues...)
+	}
+}
+
+func Infow(msg string, keysAndValues ...any) {
+	if Log != nil {
+		Log.Infow(msg, keysAndValues...)
+	}
 }
 
 func Sync() {

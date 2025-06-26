@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"go-server/internal/infrastructure/config"
-	"go-server/internal/infrastructure/logger"
-	"go-server/internal/interfaces/router"
+	"go-server/internal/config"
+	"go-server/internal/modules/user"
+	"go-server/internal/router"
+	"go-server/internal/utilities/logger"
 	"go-server/pkg/db"
 	"net/http"
 	"os"
@@ -28,9 +29,11 @@ func main() {
 	}
 	defer conn.Close()
 
+	userRepo := user.NewUserRepository(conn)
+
 	// Setup router
 	port := ":" + appConfig.Port
-	r := router.NewRouter(conn, appConfig)
+	r := router.NewRouter(conn, appConfig, userRepo)
 
 	// Start HTTP server with graceful shutdown
 	srv := &http.Server{

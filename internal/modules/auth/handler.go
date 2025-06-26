@@ -3,9 +3,9 @@ package auth
 import (
 	"encoding/json"
 	stdErrors "errors"
-	"go-server/internal/domain/user"
-	"go-server/internal/errors"
-	"go-server/internal/infrastructure/logger"
+	"go-server/internal/modules/user"
+	"go-server/internal/utilities/errors"
+	"go-server/internal/utilities/logger"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -16,7 +16,7 @@ type Handler struct {
 }
 
 func NewHandler(db *sqlx.DB, jwtSecret string) *Handler {
-	repo := user.NewRepository(db)
+	repo := user.NewUserRepository(db)
 	userService := user.NewService(repo)
 	authService := NewService(userService, jwtSecret)
 
@@ -63,10 +63,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Authorization", "Bearer "+resp.Token)
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
+	if err := json.NewEncoder(w).Encode(resp.User); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }
 
-func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {}
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	w.Header().Del("Authorization")
+	w.WriteHeader(http.StatusNoContent)
+}

@@ -1,10 +1,9 @@
 package middleware
 
 import (
+	"go-server/internal/utilities/logger"
 	"net/http"
 	"time"
-
-	"go-server/internal/infrastructure/logger"
 )
 
 func LoggingMiddleware(next http.Handler) http.Handler {

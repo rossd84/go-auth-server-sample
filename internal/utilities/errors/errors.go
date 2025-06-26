@@ -16,14 +16,15 @@ var (
 
 // --- User/Auth Specific ---
 var (
-	ErrMissingEmail       = errors.New("email is required")
-	ErrWeakPassword       = errors.New("password must be at least 8 characters")
-	ErrEmailAlreadyExists = errors.New("email already registered")
-	ErrInvalidCredentials = errors.New("invalid email or password")
-	ErrUserInactive       = errors.New("user account is inactive")
-	ErrInvalidToken       = errors.New("invalid or expired token")
-	ErrTokenMismatch      = errors.New("token mismatch")
-	ErrTokenExpired       = errors.New("token expired")
+	ErrMissingEmail        = errors.New("email is required")
+	ErrWeakPassword        = errors.New("password must be at least 8 characters")
+	ErrEmailAlreadyExists  = errors.New("email already registered")
+	ErrInvalidCredentials  = errors.New("invalid email or password")
+	ErrUserInactive        = errors.New("user account is inactive")
+	ErrInvalidAuthToken    = errors.New("invalid or expired auth token")
+	ErrInvalidRefreshToken = errors.New("invalid or expired refresh token")
+	ErrTokenMismatch       = errors.New("token mismatch")
+	ErrTokenExpired        = errors.New("token expired")
 )
 
 // --- Subscription/Billing ---
@@ -35,5 +36,7 @@ var (
 
 // --- Other Errors ---
 var (
-	ErrMissingJWTSecret = errors.New("JWT_SECRET is not set")
+	ErrMissingJWTSecret  = errors.New("JWT_SECRET is not set")
+	ErrMissingJWTRefresh = errors.New("JWT_REFRESH is not set")
+	ErrMissingIssuer     = errors.New("missing token issuer")
 )

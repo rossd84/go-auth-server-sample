@@ -2,9 +2,8 @@ package audit
 
 import (
 	"context"
+	"go-server/internal/utilities/logger"
 	"time"
-
-	"go-server/internal/infrastructure/logger"
 )
 
 const (

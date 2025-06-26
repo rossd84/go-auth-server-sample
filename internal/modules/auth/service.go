@@ -3,11 +3,10 @@ package auth
 import (
 	"context"
 	"fmt"
-
-	"go-server/internal/domain/user"
-	"go-server/internal/errors"
-	"go-server/internal/infrastructure/crypto"
-	"go-server/internal/infrastructure/logger"
+	"go-server/internal/modules/user"
+	"go-server/internal/utilities/crypto"
+	"go-server/internal/utilities/errors"
+	"go-server/internal/utilities/logger"
 )
 
 type Service struct {
@@ -72,7 +71,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResponse, 
 	user.VerificationToken = nil
 
 	// add jwt
-	token, err := GenerateJWT(user.ID.String(), user.Role, s.JWTSecret)
+	token, err := GenerateAuthToken(user.ID.String(), user.Role, s.JWTSecret)
 	if err != nil {
 		logger.Log.Errorw("failed to generate jwt", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
@@ -85,4 +84,6 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResponse, 
 
 func LoginGuest() {}
 
-func Logout() {}
+func Logout() {
+	// remove jwt token
+}

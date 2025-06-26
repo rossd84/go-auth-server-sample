@@ -19,13 +19,14 @@ type DBConfig struct {
 }
 
 type AppConfig struct {
-	Env       string
-	LogLevel  string
-	LogFile   string
-	Port      string
-	Version   string
-	JWTSecret string `mapstructure:"jwt_secret"`
-	DB        DBConfig
+	Env        string
+	LogLevel   string
+	LogFile    string
+	Port       string
+	Version    string
+	JWTSecret  string `mapstructure:"jwt_secret"`
+	JWTRefresh string `mapstructure:"jwt_refresh"`
+	DB         DBConfig
 }
 
 func BindFlags() {
@@ -58,7 +59,7 @@ func LoadAppConfig() AppConfig {
 		log.Println("⚠️  ENV not set, defaulting to development")
 	}
 
-	configFile := fmt.Sprintf(".env.%s", env)
+	configFile := fmt.Sprintf("environments/.env.%s", env)
 	viper.SetConfigFile(configFile)
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
@@ -79,12 +80,13 @@ func LoadAppConfig() AppConfig {
 	}
 
 	return AppConfig{
-		Env:       env,
-		LogLevel:  viper.GetString("LOG_LEVEL"),
-		LogFile:   viper.GetString("LOG_FILE_PATH"),
-		Port:      viper.GetString("PORT"),
-		Version:   viper.GetString("VERSION"),
-		JWTSecret: viper.GetString("JWT_SECRET"),
+		Env:        env,
+		LogLevel:   viper.GetString("LOG_LEVEL"),
+		LogFile:    viper.GetString("LOG_FILE_PATH"),
+		Port:       viper.GetString("PORT"),
+		Version:    viper.GetString("VERSION"),
+		JWTSecret:  viper.GetString("JWT_SECRET"),
+		JWTRefresh: viper.GetString("JWT_REFRESH"),
 		DB: DBConfig{
 			Host:     viper.GetString("DB_HOST"),
 			Port:     viper.GetString("DB_PORT"),
