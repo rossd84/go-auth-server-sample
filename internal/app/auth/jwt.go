@@ -2,9 +2,11 @@ package auth
 
 import (
 	// "context"
+
 	stdErrors "errors"
 	"fmt"
 	"go-server/internal/utils/errors"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -23,6 +25,38 @@ type JWTRefreshClaims struct {
 	jwt.RegisteredClaims
 }
 
+func GenerateJWT(claims jwt.Claims, secret string) (string, error) {
+	log.Println("Starting GenerateJWT...")
+	secretBytes := []byte(secret)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(secretBytes)
+}
+
+func ValidateJWT[T jwt.Claims](claims T) error {
+	validator := jwt.NewValidator()
+	return validator.Validate(claims)
+}
+
+func ParseJWT(tokenString string, secretKey string, claims jwt.Claims) (jwt.Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		// Ensure the signing method is HMAC and use the provided secret key
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, stdErrors.New("unexpected signing method")
+		}
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate the token
+	if !token.Valid {
+		return nil, stdErrors.New("invalid token")
+	}
+
+	return claims, nil
+}
+
 func GenerateAuthToken(userID string, role string, secret string) (string, error) {
 	if secret == "" {
 		return "", errors.ErrMissingJWTSecret
@@ -39,8 +73,12 @@ func GenerateAuthToken(userID string, role string, secret string) (string, error
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secret))
+	token, err := GenerateJWT(claims, secret)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign JWT: %w", err)
+	}
+
+	return token, nil
 }
 
 func GenerateRefreshToken(userID string, secret string, issuer string) (string, time.Time, error) {
@@ -67,14 +105,12 @@ func GenerateRefreshToken(userID string, secret string, issuer string) (string, 
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	signedToken, err := token.SignedString([]byte(secret))
+	token, err := GenerateJWT(claims, secret)
 	if err != nil {
-		return "", time.Time{}, err
+		return "", time.Time{}, fmt.Errorf("failed to sign JWT: %w", err)
 	}
 
-	return signedToken, expiration, nil
+	return token, expiration, nil
 }
 
 func CheckAuthToken(tokenString string, secret string) (*JWTAuthClaims, error) {
@@ -84,24 +120,18 @@ func CheckAuthToken(tokenString string, secret string) (*JWTAuthClaims, error) {
 
 	claims := &JWTAuthClaims{}
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
+	parsedClaims, err := ParseJWT(tokenString, secret, claims)
 	if err != nil {
-		if stdErrors.Is(err, jwt.ErrTokenExpired) {
-			return nil, errors.ErrTokenExpired
-		}
-		return nil, errors.ErrInvalidAuthToken
+		return nil, err
 	}
 
-	if token.Valid {
-		return claims, nil
+	if err := ValidateJWT(claims); err != nil {
+		return nil, err
 	}
 
-	return nil, errors.ErrInvalidAuthToken
+	authClaims := parsedClaims.(*JWTAuthClaims)
+
+	return authClaims, nil
 }
 
 func CheckRefreshToken(tokenString string, secret string) (*JWTRefreshClaims, error) {
@@ -109,50 +139,17 @@ func CheckRefreshToken(tokenString string, secret string) (*JWTRefreshClaims, er
 		return nil, errors.ErrInvalidRefreshToken
 	}
 
-	token, err := jwt.ParseWithClaims(tokenString, &JWTRefreshClaims{}, func(token *jwt.Token) (any, error) {
-		// Validate signing method
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
+	claims := &JWTRefreshClaims{}
+	parsedClaims, err := ParseJWT(tokenString, secret, claims)
 	if err != nil {
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*JWTRefreshClaims); ok && token.Valid {
-		return claims, nil
+	if err := ValidateJWT(claims); err != nil {
+		return nil, err
 	}
 
-	return nil, errors.ErrInvalidRefreshToken
-}
+	refreshClaims := parsedClaims.(*JWTRefreshClaims)
 
-// func IsTokenExpired(err error) bool {
-// 	return stdErrors.Is(err, jwt.ErrTokenExpired)
-// }
-//
-// func GenerateAndStoreRefreshToken(
-// 	ctx context.Context,
-// 	repo *AuthRepository,
-// 	userID, ip, userAgent, secret, issuer string,
-// 	expiry time.Duration,
-// ) (string, string, error) {
-// 	token, jti, expiresAt, err := GenerateRefreshToken(userID, secret, issuer)
-// 	if err != nil {
-// 		return "", "", err
-// 	}
-//
-// 	rt := &RefreshToken{
-// 		UserID:    userID,
-// 		Token:     token,
-// 		IPAddress: ip,
-// 		UserAgent: userAgent,
-// 		ExpiresAt: expiresAt,
-// 	}
-//
-// 	if err := repo.StoreRefreshToken(ctx, rt); err != nil {
-// 		return "", "", err
-// 	}
-//
-// 	return token, jti, nil
-// }
+	return refreshClaims, nil
+}
