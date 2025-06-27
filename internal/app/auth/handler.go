@@ -59,7 +59,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	browser := r.Header.Get("X-Browser")
 	location := r.Header.Get("X-Location")
 
-	meta := RefreshToken{
+	meta := RefreshTokenWithMeta{
 		UserAgent: userAgent,
 		IPAddress: ip,
 		DeviceID:  deviceID,
@@ -97,6 +97,20 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	w.Header().Del("Authorization")
+	if cookie, err := r.Cookie("refresh_token"); err == nil && cookie.Value != "" {
+		_ = h.AuthService.Logout(r.Context(), cookie.Value)
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   -1,
+	})
+
+	w.Header().Set("Clear-Authorization", "true")
+
 	w.WriteHeader(http.StatusNoContent)
 }

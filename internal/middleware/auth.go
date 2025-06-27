@@ -79,7 +79,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 					meta := utils.ExtractMetadata(r)
 
 					// Store the new refresh token
-					newRefreshToken := auth.RefreshToken{
+					newRefreshToken := auth.RefreshTokenWithMeta{
 						UserID:    newUser.ID,
 						TokenHash: newTokenHash,
 						UserAgent: meta.UserAgent,

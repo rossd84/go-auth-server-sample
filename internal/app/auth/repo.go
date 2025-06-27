@@ -16,7 +16,7 @@ func NewAuthRepository(db *sqlx.DB) *AuthRepository {
 	return &AuthRepository{DB: db}
 }
 
-func (r *AuthRepository) StoreRefreshToken(ctx context.Context, rt *RefreshToken) error {
+func (r *AuthRepository) StoreRefreshToken(ctx context.Context, rt *RefreshTokenWithMeta) error {
 	log.Printf("Storing refresh token: %+v\n", rt)
 	_, err := r.DB.NamedExecContext(ctx, `
 		INSERT INTO refresh_tokens (
@@ -55,8 +55,8 @@ func (r *AuthRepository) DeleteRefreshToken(ctx context.Context, token string) e
 	return err
 }
 
-func (r *AuthRepository) GetRefreshToken(ctx context.Context, token string) (*RefreshToken, error) {
-	var rt RefreshToken
+func (r *AuthRepository) GetRefreshToken(ctx context.Context, token string) (*RefreshTokenWithMeta, error) {
+	var rt RefreshTokenWithMeta
 	err := r.DB.GetContext(ctx, &rt, `SELECT * FROM refresh_tokens WHERE token_hash = $1`, token)
 	if err != nil {
 		return nil, err

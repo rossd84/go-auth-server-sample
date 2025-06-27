@@ -13,7 +13,7 @@ CREATE TABLE users (
 
     -- Roles and permissions
     role TEXT NOT NULL DEFAULT 'user', -- 'user', 'admin', etc.
-    is_active BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE, -- for managers to suspend permissions
 
     -- Stripe integration
     stripe_customer_id TEXT,

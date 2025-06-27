@@ -51,7 +51,7 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*user.User
 	return u, nil
 }
 
-func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken) (*LoginResponse, error) {
+func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshTokenWithMeta) (*LoginResponse, error) {
 	if input.Email == "" {
 		return nil, errors.ErrMissingEmail
 	}
@@ -96,7 +96,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 
 	sessionID := uuid.New()
 
-	rt := &RefreshToken{
+	rt := &RefreshTokenWithMeta{
 		UserID:    user.ID,
 		SessionID: sessionID,
 		TokenHash: refreshTokenHash,
@@ -121,6 +121,12 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 
 func LoginGuest() {}
 
-func Logout() {
-	// remove jwt token
+func (s *Service) Logout(ctx context.Context, tokenString string) error {
+	claims := &JWTRefreshClaims{}
+	_, err := ParseJWT(tokenString, s.JWTSecret, claims)
+	if err != nil || claims.ID == "" {
+		return nil
+	}
+
+	return s.repo.RevokeRefreshToken(ctx, claims.ID)
 }

@@ -24,7 +24,7 @@ type LoginResponse struct {
 	RefreshToken string     `json:"refresh_token"`
 }
 
-type RefreshToken struct {
+type RefreshTokenWithMeta struct {
 	UserID    uuid.UUID  `db:"user_id"`
 	SessionID uuid.UUID  `db:"session_id"`
 	TokenHash string     `db:"token_hash"`
