@@ -63,7 +63,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 					}
 
 					// Generate new refresh token
-					newToken, newExp, genErr := auth.GenerateRefreshToken(newUser.ID.String(), refreshSecret, issuer)
+					newToken, newTokenID, newExp, genErr := auth.GenerateRefreshToken(newUser.ID.String(), refreshSecret, issuer)
 					if genErr != nil {
 						http.Error(w, "failed to generate new refresh token", http.StatusInternalServerError)
 						return
@@ -80,6 +80,7 @@ func AuthMiddleware(secret string, refreshSecret string, issuer string, userRepo
 
 					// Store the new refresh token
 					newRefreshToken := auth.RefreshTokenWithMeta{
+						ID:        newTokenID,
 						UserID:    newUser.ID,
 						TokenHash: newTokenHash,
 						UserAgent: meta.UserAgent,

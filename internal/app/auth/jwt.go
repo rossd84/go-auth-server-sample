@@ -20,8 +20,8 @@ type JWTAuthClaims struct {
 }
 
 type JWTRefreshClaims struct {
+	ID     string `json:"id"`
 	UserID string `json:"user_id"`
-	ID     string `json:"jwt_id"`
 	jwt.RegisteredClaims
 }
 
@@ -38,7 +38,7 @@ func ValidateJWT[T jwt.Claims](claims T) error {
 }
 
 func ParseJWT(tokenString string, secretKey string, claims jwt.Claims) (jwt.Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
 		// Ensure the signing method is HMAC and use the provided secret key
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, stdErrors.New("unexpected signing method")
@@ -62,7 +62,7 @@ func GenerateAuthToken(userID string, role string, secret string) (string, error
 		return "", errors.ErrMissingJWTSecret
 	}
 
-	expiration := time.Now().Add(24 * time.Hour)
+	expiration := time.Now().Add(15 * time.Minute)
 
 	claims := JWTAuthClaims{
 		UserID: userID,
@@ -81,13 +81,13 @@ func GenerateAuthToken(userID string, role string, secret string) (string, error
 	return token, nil
 }
 
-func GenerateRefreshToken(userID string, secret string, issuer string) (string, time.Time, error) {
+func GenerateRefreshToken(userID string, secret string, issuer string) (string, uuid.UUID, time.Time, error) {
 	if secret == "" {
-		return "", time.Time{}, errors.ErrMissingJWTRefresh
+		return "", uuid.Nil, time.Time{}, errors.ErrMissingJWTRefresh
 	}
 
 	if issuer == "" {
-		return "", time.Time{}, errors.ErrMissingIssuer
+		return "", uuid.Nil, time.Time{}, errors.ErrMissingIssuer
 	}
 
 	expiration := time.Now().Add(30 * 24 * time.Hour) // 30 Days
@@ -107,10 +107,10 @@ func GenerateRefreshToken(userID string, secret string, issuer string) (string, 
 
 	token, err := GenerateJWT(claims, secret)
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("failed to sign JWT: %w", err)
+		return "", uuid.Nil, time.Time{}, fmt.Errorf("failed to sign JWT: %w", err)
 	}
 
-	return token, expiration, nil
+	return token, tokenID, expiration, nil
 }
 
 func CheckAuthToken(tokenString string, secret string) (*JWTAuthClaims, error) {

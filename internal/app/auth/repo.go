@@ -20,6 +20,7 @@ func (r *AuthRepository) StoreRefreshToken(ctx context.Context, rt *RefreshToken
 	log.Printf("Storing refresh token: %+v\n", rt)
 	_, err := r.DB.NamedExecContext(ctx, `
 		INSERT INTO refresh_tokens (
+			id,
 			user_id,
 			token_hash,
 			issued_at,
@@ -33,6 +34,7 @@ func (r *AuthRepository) StoreRefreshToken(ctx context.Context, rt *RefreshToken
 			browser,
 			session_id
 		) VALUES (
+			:id,
 			:user_id,
 			:token_hash,
 			:issued_at,
@@ -65,6 +67,7 @@ func (r *AuthRepository) GetRefreshToken(ctx context.Context, token string) (*Re
 }
 
 func (r *AuthRepository) RevokeRefreshToken(ctx context.Context, tokenID string) error {
+	log.Println("token id passed to RevokeRefreshToken: ", tokenID)
 	query := `
 		UPDATE refresh_tokens
 		SET revoked = TRUE, revoked_at = NOW()

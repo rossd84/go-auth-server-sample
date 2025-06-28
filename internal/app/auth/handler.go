@@ -6,6 +6,7 @@ import (
 	"go-server/internal/app/user"
 	"go-server/internal/utils"
 	"go-server/internal/utils/errors"
+	"log"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -87,8 +88,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    resp.RefreshToken,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
 	})
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(resp.User); err != nil {
@@ -97,6 +98,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	log.Println("Logout handler hit")
 	if cookie, err := r.Cookie("refresh_token"); err == nil && cookie.Value != "" {
 		_ = h.AuthService.Logout(r.Context(), cookie.Value)
 	}

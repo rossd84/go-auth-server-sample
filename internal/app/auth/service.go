@@ -6,6 +6,7 @@ import (
 	"go-server/internal/app/user"
 	"go-server/internal/utils"
 	"go-server/internal/utils/errors"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -83,7 +84,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 		utils.Log.Errorw("failed to generate jwt", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
 	}
-	refreshToken, expiration, err := GenerateRefreshToken(user.ID.String(), s.JWTRefresh, s.JWTIssuer)
+	refreshToken, refreshTokenID, expiration, err := GenerateRefreshToken(user.ID.String(), s.JWTRefresh, s.JWTIssuer)
 	if err != nil {
 		utils.Log.Errorw("failed to generate refresh token", "user_id", user.ID, "error", err)
 		return nil, errors.ErrInternalServer
@@ -97,6 +98,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput, meta RefreshToken
 	sessionID := uuid.New()
 
 	rt := &RefreshTokenWithMeta{
+		ID:        refreshTokenID,
 		UserID:    user.ID,
 		SessionID: sessionID,
 		TokenHash: refreshTokenHash,
@@ -123,10 +125,12 @@ func LoginGuest() {}
 
 func (s *Service) Logout(ctx context.Context, tokenString string) error {
 	claims := &JWTRefreshClaims{}
-	_, err := ParseJWT(tokenString, s.JWTSecret, claims)
+	_, err := ParseJWT(tokenString, s.JWTRefresh, claims)
+	log.Println("Logout: ", claims)
 	if err != nil || claims.ID == "" {
+		log.Println("Error Parsing jwt: ", err)
 		return nil
 	}
-
+	log.Println("Revoking token with ID:", claims.ID)
 	return s.repo.RevokeRefreshToken(ctx, claims.ID)
 }
