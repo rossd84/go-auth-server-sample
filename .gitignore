@@ -35,3 +35,5 @@ Thumbs.db
 # Env/config files
 .env
 .env.*
+!.env.example
+!.env.db.example

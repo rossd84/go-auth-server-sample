@@ -28,7 +28,7 @@ echo "📁 Creating docker-compose.yml..."
 cat <<EOF >docker-compose.yml
 services:
   db:
-    image: postgres:latest
+    image: tracktor/postgres:17.5-alpine
     container_name: saas_postgres_dev
     restart: unless-stopped
     env_file:
@@ -38,7 +38,7 @@ services:
       - ./init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
-
+    command: ["postgres", "-c", "shared_preload_libraries=pg_cron"]
 volumes:
   pgdata:
 EOF
@@ -47,9 +47,9 @@ echo "✅ docker-compose.yml created."
 # Create init SQL directory and file
 echo "📁 Creating init SQL script..."
 mkdir -p init
-source ../environments/.env.db
+source .env.db
 
-cat <<EOF >./postgres/create-api-user.sql
+cat <<EOF >./scripts/postgres/create-api-user.sql
 DO
 \$\$
 BEGIN
@@ -77,7 +77,7 @@ if [[ "$RESET" =~ ^[Yy]$ ]]; then
     echo "🧹 Cleaning up existing container and volume..."
     docker compose down -v
     echo "🚀 Starting fresh container with updated credentials..."
-    docker compose --env-file ../environments/.env.db up -d
+    docker compose --env-file .env.db up -d
     echo "✅ Database reset and container restarted."
 else
     echo "ℹ️  You can start the container manually with:"

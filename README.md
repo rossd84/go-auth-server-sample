@@ -35,17 +35,32 @@ structured configuration, and modular routing using the `chi` router.
 ## 📦 Project Structure
 
 ```bash
-go-server/
-│
-├── cmd/                # Application entry point
-├── config/             # Config loader (from .env)
-├── handlers/           # Route handlers (auth, etc.)
-├── middleware/         # Custom middleware (if any)
-├── routes/             # Route registration
-├── logs/               # Log output (future use)
-├── .env                # Environment variables
-├── go.mod / go.sum     # Go dependencies
-└── main.go             # Server setup and start
+go-server
+├─ cmd
+│  └── server
+├─ docs
+├─ environments
+├─ init
+├─ internal
+│  ├─ app
+│  │  ├─ audit
+│  │  ├─ auth
+│  │  ├─ health
+│  │  └─ user
+│  ├─ config
+│  ├─ db
+│  │  ├─ migrations
+│  │  └─ postgres
+│  ├─ middleware
+│  ├─ router
+│  └─ utils
+│      └─ errors
+├─ pkg
+│  └─ db
+├─ scripts
+│ ├─ docker
+│ └─ postgres
+└─ tests
 ```
 
 ---
@@ -64,7 +79,8 @@ cd go-server
 Copy the sample `.env.example` if available:
 
 ```bash
-cp .env.example .env
+cp /environments/.env.example /environments/.env
+cp /environments/.env.db.example /environments/.env.db.example
 ```
 
 Update with values like:
